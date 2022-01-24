@@ -105,7 +105,7 @@ export abstract class ViewModel {
     }
 
     private bindContent(element: Element, item?: any, i?: number): void {
-        let binding: string = element.getAttribute(this.attrBindAttr);
+        let binding: string = element.getAttribute(this.contentBindAttr);
         if(binding == null)
             return;
         let value: any = "";
