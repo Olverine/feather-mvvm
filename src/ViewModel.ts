@@ -5,6 +5,7 @@ export abstract class ViewModel {
     protected name: string;
 
     private attrBindAttr: string;
+    private contentBindAttr: string;
     private eventBindAttr: string;
     private jsBindAttr: string;
     private foreachBindAttr: string;
@@ -15,6 +16,7 @@ export abstract class ViewModel {
         this.name = name;
 
         this.attrBindAttr = `${this.name}-attr-bind`;
+        this.contentBindAttr = `${this.name}-content-bind`;
         this.eventBindAttr = `${this.name}-event-bind`;
         this.jsBindAttr = `${this.name}-js-bind`;
         this.foreachBindAttr = `${this.name}-foreach`;
@@ -62,6 +64,11 @@ export abstract class ViewModel {
             this.bindAttributes(element);
         });
 
+        let contentBoundElements: NodeListOf<Element> = view.querySelectorAll(`[${this.contentBindAttr}]`);
+        contentBoundElements.forEach(element => {
+            this.bindContent(element);
+        });
+
         let valueBoundElements: NodeListOf<HTMLInputElement> = view.querySelectorAll(`[${this.jsBindAttr}]`);
         valueBoundElements.forEach(element => {
             this.bindValue(element);
@@ -89,16 +96,26 @@ export abstract class ViewModel {
                     value = "";
             } catch(e){
             }
-            if(attr == "content") {
-                element.innerHTML = value;
+            if(value == false) {
+                element.removeAttribute(attr)
             } else {
-                if(value == false) {
-                    element.removeAttribute(attr)
-                } else {
-                    element.setAttribute(attr, value);
-                }
+                element.setAttribute(attr, value);
             }
         });
+    }
+
+    private bindContent(element: Element, item?: any, i?: number): void {
+        let binding: string = element.getAttribute(this.attrBindAttr);
+        if(binding == null)
+            return;
+        let value: any = "";
+        try{
+            value = Function(this.getValueBindingFunction(binding, item, i))();
+            if(value == undefined)
+                value = "";
+        } catch(e){
+        }
+        element.innerHTML = value;
     }
 
     private bindValue(element: Element, item?: any, i?: number): void {
