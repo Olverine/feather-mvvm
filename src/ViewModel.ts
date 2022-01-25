@@ -190,6 +190,7 @@ export abstract class ViewModel {
             let newElem: Element = (element as HTMLElement).cloneNode(true) as Element;
             this.bindAttributes(newElem, item, i);
             this.bindValue(newElem, item, i);
+            this.bindContent(newElem, item, i);
             let attrBoundElements: NodeListOf<Element> = newElem.querySelectorAll(`[${this.attrBindAttr}]`);
             attrBoundElements.forEach(bound => {
                 this.bindAttributes(bound, item, i);

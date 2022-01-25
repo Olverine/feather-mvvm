@@ -1,6 +1,6 @@
 {
   "name": "feather-mvvm",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Lightweight model view viewmodel framework designed for embedded web servers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,6 +12,7 @@
     "build": "tsc"
   },
   "author": "Oliver Norin",
+  "repository":"https://github.com/Olverine/feather-mvvm",
   "license": "ISC",
   "devDependencies": {
     "typescript": "^4.5.5"
