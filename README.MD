@@ -64,7 +64,7 @@ Whenever the state of a viewmodel changes, it has to update it's views in order 
 
 ### Attribute binding
 
-Attribute binding binds data to an html attribute. The value of the binding attribute is a comma separated list of attribute name and value pairs so multiple attributes can be bound at once. The value part will be evaluated as javascript and the current state of the viewmodel (as of the time of updating the view) can be accessed through the variable `$vm`. For example:
+Attribute binding binds data to an html attribute. The value of the binding attribute is a comma separated list of attribute name and value pairs so multiple attributes can be bound at once. The value part will be evaluated as javascript in the global scope and the current state of the viewmodel (as of the time of updating the view) can be accessed through the variable `$vm`. For example:
 
     <progress vm-name-attr-bind="value: $vm.progress, max: $vm.maximum" />
 
@@ -90,3 +90,29 @@ In order to catch this event in the viewmodel, you need to override the `onEvent
 
 The event name and a reference to the event will be passed to the function
 
+### JavaScript value binding
+
+JavaScript value binding is a two way binding between a field in the viewmodel and a field in the DOM element object. This is useful for binding parameters of a DOM element that can be changed by the user (such as the value of an input or checked state of a checkbox) to a variable in the viewmodel.
+
+Unlike attribute binding and content binding, each field of the viewmodel can be accessed directly by name instead of accessing a `$vm` variable. For example:
+
+    <div id="view" ft-view-model="hello-vm">
+        <h1 hello-vm-content-bind="$vm.model"></h1>
+        <input hello-vm-js-bind="value: model">
+    </div>
+
+In the above example, the inner text of the `<h1>` element will be updated whenever the user changes the value of the `<input>` element
+
+### Foreach binding
+
+Foreach binding is used to create lists that represents the elements in an array. A foreach bound element will be multiplied inside it's parent once for each element in the provided array. Attributes, Content and Javascript values can then be bound as usual except the element array item can be access though the variable `$item` and it's indexed location in the array can be accessed with `$i`.
+
+For example:
+
+    <ul id="view" ft-view-model="list-vm">
+        <li list-vm-foreach="$vm.list" list-vm-content-bind="'item number ' + $i + ' in list contains ' + $item">
+    </ul>
+
+### Data binding limitations
+
+It will be helpful to know that the accessors `$vm` and `$item` are not refereces to the actual objects but rather JSON copies of the object created when the view is updated. They will contain all the fields of the objects but the prototypes and any non primitive data types are not available.
