@@ -1,37 +1,16 @@
-## Welcome to GitHub Pages
+# Feather-mvvm
 
-You can use the [editor on GitHub](https://github.com/Olverine/feather-mvvm/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+Feather-mvvm is a lightweight model-view-viewmodel framework designed for embedded webservers with limited performance. Feather-mvvm provides powerful data binding capabilities while keeping storage space and bandwidth to a minimum and with no external dependencies whatsoever. The framework is written in Typescript and when combined with Webpack, it allows easy development of fast, tiny and dynamic frontend web applications.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Features
 
-### Markdown
+Feather-mvvm provides the following features:
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Olverine/feather-mvvm/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+ - Binding data from viewmodels to innerHTML of an element
+ - Binding data from viewmodels to an attribute value of an element
+ - Two way binding between a viewmodel and a JavaScript value of an element object
+ - Binding events to viewmodel
+ - Duplicating html elements and binding to elements in an array
+ - Multiple views for the same viewmodel
+ - Multiple viewmodels for the same view
+ - Nested views
