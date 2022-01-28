@@ -3,6 +3,7 @@ export abstract class ViewModel {
     protected views: NodeListOf<Element>;
 
     protected name: string;
+    protected model: any;
 
     private attrBindAttr: string;
     private contentBindAttr: string;
@@ -12,7 +13,8 @@ export abstract class ViewModel {
 
     private foreachClassName = "ft-foreach";
 
-    constructor(name: string) {
+    constructor(name: string, model?: any) {
+        this.model = model;
         this.name = name;
 
         this.attrBindAttr = `${this.name}-attr-bind`;
