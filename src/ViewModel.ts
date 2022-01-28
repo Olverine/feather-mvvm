@@ -1,3 +1,5 @@
+import { pipe } from "./Pipe";
+
 export abstract class ViewModel {
 
     protected views: NodeListOf<Element>;
@@ -89,13 +91,18 @@ export abstract class ViewModel {
             return;
         let bindings: string[] = attributeBindingStr.split(",");
         bindings.forEach(binding => {
-            let attr: string = binding.split(":")[0].trim();
-            let valueField: string = binding.split(":")[1].trim();
+            let split: string[] = binding.split(/(?<!\\):/);
+            let attr: string = split[0].trim();
+            let valueField: string = split[1].trim();
             let value: any = "";
             try{
                 value = Function(this.getValueBindingFunction(valueField, item, i))();
                 if(value == undefined)
                     value = "";
+                if(split.length > 2) {
+                    let pipeName = split[2].trim();
+                    value = pipe(pipeName, value);
+                }
             } catch(e){
             }
             if(value == false) {
@@ -107,14 +114,20 @@ export abstract class ViewModel {
     }
 
     private bindContent(element: Element, item?: any, i?: number): void {
-        let binding: string = element.getAttribute(this.contentBindAttr);
-        if(binding == null)
+        let binding = element.getAttribute(this.contentBindAttr);
+        if (binding == null)
             return;
-        let value: any = "";
+        let split = binding.split(/(?<!\\):/);
+        binding = split[0];
+        let value = "";
         try{
             value = Function(this.getValueBindingFunction(binding, item, i))();
             if(value == undefined)
                 value = "";
+            if(split.length > 1) {
+                let pipeName = split[1].trim();
+                value = pipe(pipeName, value);
+            }
         } catch(e){
         }
         element.innerHTML = value;
@@ -191,11 +204,19 @@ export abstract class ViewModel {
         (iterable as unknown as Array<any>).forEach(item => {
             let newElem: Element = (element as HTMLElement).cloneNode(true) as Element;
             this.bindAttributes(newElem, item, i);
-            this.bindValue(newElem, item, i);
             this.bindContent(newElem, item, i);
+            this.bindValue(newElem, item, i);
             let attrBoundElements: NodeListOf<Element> = newElem.querySelectorAll(`[${this.attrBindAttr}]`);
             attrBoundElements.forEach(bound => {
                 this.bindAttributes(bound, item, i);
+            });
+            let contentBoundElements: NodeListOf<Element> = newElem.querySelectorAll(`[${this.contentBindAttr}]`);
+            contentBoundElements.forEach(bound => {
+                this.bindContent(bound, item, i);
+            });
+            let valueBoundElements: NodeListOf<Element> = newElem.querySelectorAll(`[${this.jsBindAttr}]`);
+            valueBoundElements.forEach(bound => {
+                this.bindValue(bound, item, i);
             });
             newElem.classList.add(className);
             newElem.removeAttribute("hidden");
