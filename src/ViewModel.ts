@@ -197,6 +197,8 @@ export abstract class ViewModel {
             return;
         let iterableStr: string = element.getAttribute(this.foreachBindAttr);
         let iterable = Function(this.getValueBindingFunction(iterableStr))();
+        if(!iterable)
+            return;
         let className = `${this.foreachClassName}-${iterableStr}`;
         this.clearChildrenWithClassName(element.parentElement, className);
         let i = 0;
