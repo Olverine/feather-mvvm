@@ -85,7 +85,7 @@ export abstract class ViewModel {
     }
 
 
-    private bindAttributes(element: Element, item?: any, i?: number): void {
+    private bindAttributes(element: Element, item?: string, i?: number): void {
         let attributeBindingStr: string = element.getAttribute(this.attrBindAttr);
         if(attributeBindingStr == null)
             return;
@@ -96,7 +96,7 @@ export abstract class ViewModel {
             let valueField: string = split[1].trim();
             let value: any = "";
             try{
-                value = Function(this.getValueBindingFunction(valueField, item, i))();
+                value = Function(this.getValueBindingFunction(valueField, item, i)).call(this);
                 if(value == undefined)
                     value = "";
                 if(split.length > 2) {
@@ -113,7 +113,7 @@ export abstract class ViewModel {
         });
     }
 
-    private bindContent(element: Element, item?: any, i?: number): void {
+    private bindContent(element: Element, item?: string, i?: number): void {
         let binding = element.getAttribute(this.contentBindAttr);
         if (binding == null)
             return;
@@ -121,7 +121,7 @@ export abstract class ViewModel {
         binding = split[0];
         let value = "";
         try{
-            value = Function(this.getValueBindingFunction(binding, item, i))();
+            value = Function(this.getValueBindingFunction(binding, item, i)).call(this);
             if(value == undefined)
                 value = "";
             if(split.length > 1) {
@@ -133,7 +133,7 @@ export abstract class ViewModel {
         element.innerHTML = value;
     }
 
-    private bindValue(element: Element, item?: any, i?: number): void {
+    private bindValue(element: Element, item?: string, i?: number): void {
         let jsBindingStr: string = element.getAttribute(this.jsBindAttr);
         if(jsBindingStr == null)
             return;
@@ -143,7 +143,7 @@ export abstract class ViewModel {
             let valueField: string = binding.split(":")[1].trim();
             let value: any = "";
             try{
-                value = Function(this.getValueBindingFunction("$vm."+valueField, item, i))();
+                value = Function(this.getValueBindingFunction(valueField, item, i)).call(this);
                 if(value == undefined)
                     value = "";
             } catch(e){
@@ -164,7 +164,7 @@ export abstract class ViewModel {
         });
     }
 
-    private bindChangeEvent(element: Element): void {
+    private bindChangeEvent(element: Element, item?: any): void {
         let jsBindingStr: string = element.getAttribute(this.jsBindAttr);
         let bindings: string[] = jsBindingStr.split(",");
         bindings.forEach(binding => {
@@ -172,9 +172,14 @@ export abstract class ViewModel {
                 let val: string = binding.split(":")[0].trim();
                 let valueField: string = binding.split(":")[1].trim();
 
-                let obj: any = (this as unknown as any);
+                let obj: any;
                 let fields = valueField.split(".");
-                for(var i = 0; i < fields.length - 1; i++) {
+                if(item && fields[0] == "$item") {
+                    obj = (item as unknown as any);
+                } else {
+                    obj = (this as unknown as any);
+                }
+                for(var i = 1; i < fields.length - 1; i++) {
                     obj = obj[fields[i]];
                 }
                 obj[fields[fields.length - 1]] = (e.target as unknown as any)[val];
@@ -183,11 +188,13 @@ export abstract class ViewModel {
         });
     }
 
-    private getValueBindingFunction(valueField: string, item?: any, i?: number): any {
+    private getValueBindingFunction(valueField: string, item?: string, i?: number): any {
         let func: string = '"use strict";';
-        func = func.concat(`let $vm = ${JSON.stringify(this as unknown)};`);
-        func = func.concat(`let $item = ${JSON.stringify(item as unknown)};`);
-        func = func.concat(`let $i = ${i};`);
+        func = func.concat(`let $vm = this;`);
+        if(item) {
+            func = func.concat(`let $i = ${i};`);
+            func = func.concat(`let $item = ${item}[$i];`);
+        }
         func = func.concat(`return ( ${valueField} )`);
         return func;
     }
@@ -196,7 +203,8 @@ export abstract class ViewModel {
         if(element.parentNode == null)
             return;
         let iterableStr: string = element.getAttribute(this.foreachBindAttr);
-        let iterable = Function(this.getValueBindingFunction(iterableStr))();
+        console.log(iterableStr);
+        let iterable = Function(this.getValueBindingFunction(iterableStr)).call(this);
         if(!iterable)
             return;
         let className = `${this.foreachClassName}-${iterableStr}`;
@@ -204,20 +212,21 @@ export abstract class ViewModel {
         let i = 0;
         (iterable as unknown as Array<any>).forEach(item => {
             let newElem: Element = (element as HTMLElement).cloneNode(true) as Element;
-            this.bindAttributes(newElem, item, i);
-            this.bindContent(newElem, item, i);
-            this.bindValue(newElem, item, i);
+            this.bindAttributes(newElem, iterableStr, i);
+            this.bindContent(newElem, iterableStr, i);
+            this.bindValue(newElem, iterableStr, i);
             let attrBoundElements: NodeListOf<Element> = newElem.querySelectorAll(`[${this.attrBindAttr}]`);
             attrBoundElements.forEach(bound => {
-                this.bindAttributes(bound, item, i);
+                this.bindAttributes(bound, iterableStr, i);
             });
             let contentBoundElements: NodeListOf<Element> = newElem.querySelectorAll(`[${this.contentBindAttr}]`);
             contentBoundElements.forEach(bound => {
-                this.bindContent(bound, item, i);
+                this.bindContent(bound, iterableStr, i);
             });
             let valueBoundElements: NodeListOf<Element> = newElem.querySelectorAll(`[${this.jsBindAttr}]`);
             valueBoundElements.forEach(bound => {
-                this.bindValue(bound, item, i);
+                this.bindValue(bound, iterableStr, i);
+                this.bindChangeEvent(bound, item)
             });
             newElem.classList.add(className);
             newElem.removeAttribute("hidden");
