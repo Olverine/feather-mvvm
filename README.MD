@@ -14,6 +14,7 @@ Feather-mvvm provides the following features:
  - Multiple views for the same viewmodel
  - Multiple viewmodels for the same view
  - Nested views
+ - Value pipes for processing values before they are displayed
 
 # Usage
 
@@ -21,32 +22,44 @@ Feather-mvvm provides the following features:
 
 Creating a viewmodel is done by simply extending the viewmodel class. For example, a simple viewmodel for a Hello World application could look like the following:
 
-    import { ViewModel } from "feather-mvvm";
+```typescript
+import { ViewModel } from "feather-mvvm";
 
-    export class HelloViewModel extends ViewModel {
-        public model: string = "Hello World";
-    }
+export class HelloViewModel extends ViewModel {
+    public model: string = "Hello World";
+}
+```
 
 The viewmodel also has to be instantiated and initialized in order to function. For example:
 
-    import { HelloViewModel } from './HelloViewModel'
 
-    document.addEventListener("DOMContentLoaded", event => {
-        let helloVM = new HelloViewModel("hello-vm");
-        helloVM.onInit();
-    });
+```typescript
+import { HelloViewModel } from './HelloViewModel'
+
+document.addEventListener("DOMContentLoaded", event => {
+    let helloVM = new HelloViewModel("hello-vm");
+    helloVM.onInit();
+});
+```
 
 When a viewmodel is instantiated, a name has to be provided as a cunstructor argument. This name is used to bind this instance of the viewmodel to it's views.
+
+A model can also be provided as the second argument. e.g. 
+```typescript
+new HelloViewModel("hello-vm", {foo: "bar"});
+```
 
 ## Creating a view
 
 Creating a view is also easy and straight forward. It is done by setting the attribute `ft-view-model` of the view element to the name of the viewmodel instance. For example:
 
-    <body>
-        <div ft-view-model="hello-vm" id="hello-view">
-            ...
-        </div>
-    </body>
+```html
+<body>
+    <div ft-view-model="hello-vm">
+        ...
+    </div>
+</body>
+```
 
 This way, the viewmodel will be able to identify and update it's views.
 
@@ -64,55 +77,70 @@ Whenever the state of a viewmodel changes, it has to update it's views in order 
 
 ### Attribute binding
 
-Attribute binding binds data to an html attribute. The value of the binding attribute is a comma separated list of attribute name and value pairs so multiple attributes can be bound at once. The value part will be evaluated as javascript in the global scope and the current state of the viewmodel (as of the time of updating the view) can be accessed through the variable `$vm`. For example:
+Attribute binding binds data to an html attribute. The value of the binding attribute is a comma separated list of attribute name and value pairs so multiple attributes can be bound at once. The value part will be evaluated as javascript and a reference to the viewmodel instance can be accessed through the variable `$vm`. For example:
 
-    <progress vm-name-attr-bind="value: $vm.progress, max: $vm.maximum" />
+```html
+<progress vm-name-attr-bind="value: $vm.progress, max: $vm.maximum" />
+```
 
 ### Content binding
 
 Content binding means binding data to the inner html of a DOM element. This can be useful for updating the text of a label for example. It works the same way as attribute binding except no attribute name needs to be provided and only one value is allowed. For example:
 
-    <h1 vm-name-content-bind="$vm.title" />
+```html
+<h1 vm-name-content-bind="$vm.title" />
+```
 
 ### Event binding
 
-When an event is bound to the viewmodel, the viewmodel will be notified whenever it is fired. Events are bound by entering the event name and a name that will uniquely identify this event in the viewmodel. Multiple events can be bound by providing a comma separeted list of event and name pairs.
+When an event is bound to the viewmodel, the viewmodel will be notified whenever it is fired. Events are bound by entering the event name and a name that will uniquely identify this event in the viewmodel. Multiple events can be bound by providing a comma separeted list of event and name pairs. An optional argument can be passed with the event. 
+Only one argument is allowed and it will be evaluated as javascript.
 
-    <button vm-name-event-bind="click: hello">Click Me</button>
+```html
+<!-- Event without argument -->
+<button vm-name-event-bind="click: hello">Click Me</button>
+
+<!-- Event with argument -->
+<button vm-name-event-bind="click: say('hello')">Click Me</button>
+```
 
 In order to catch this event in the viewmodel, you need to override the `onEvent` function:
 
-    protected onEvent(event: Event, eventName: string): void {
-        if(eventName == "hello") {
-            console.log("Hello");
-        }
+```typescript
+protected onEvent(event: Event, eventName: string, arg: any): void {
+    if(eventName == "hello") {
+        console.log("Hello");
     }
+    else if(eventName == "say") {
+        console.log(arg);
+    }
+}
+```
 
-The event name and a reference to the event will be passed to the function
+The event name, a reference to the event and the optional argument will be passed to the function.
 
 ### JavaScript value binding
 
 JavaScript value binding is a two way binding between a field in the viewmodel and a field in the DOM element object. This is useful for binding parameters of a DOM element that can be changed by the user (such as the value of an input or checked state of a checkbox) to a variable in the viewmodel.
 
-Unlike attribute binding and content binding, each field of the viewmodel can be accessed directly by name instead of accessing a `$vm` variable. For example:
-
-    <div id="view" ft-view-model="hello-vm">
-        <h1 hello-vm-content-bind="$vm.model"></h1>
-        <input hello-vm-js-bind="value: model">
-    </div>
+```html
+<div id="view" ft-view-model="hello-vm">
+    <h1 hello-vm-content-bind="$vm.model"></h1>
+    <input hello-vm-js-bind="value: $vm.model">
+</div>
+```
 
 In the above example, the inner text of the `<h1>` element will be updated whenever the user changes the value of the `<input>` element
 
 ### Foreach binding
 
-Foreach binding is used to create lists that represents the elements in an array. A foreach bound element will be multiplied inside it's parent once for each element in the provided array. Attributes, Content and Javascript values can then be bound as usual except the element array item can be access though the variable `$item` and it's indexed location in the array can be accessed with `$i`.
+Foreach binding is used to create lists that represents the elements in an array. A foreach bound element will be multiplied inside it's parent once for each element in the provided array. Attributes, Content, Javascript values and events can then be bound as usual except the element array item can be accessed through the variable `$item` and it's indexed location in the array can be accessed with `$i`.
 
 For example:
 
-    <ul id="view" ft-view-model="list-vm">
-        <li list-vm-foreach="$vm.list" list-vm-content-bind="'item number ' + $i + ' in list contains ' + $item">
-    </ul>
+```html
+<ul id="view" ft-view-model="list-vm">
+    <li list-vm-foreach="$vm.list" list-vm-content-bind="'item number ' + $i + ' in list contains ' + $item">
+</ul>
+```
 
-### Data binding limitations
-
-It will be helpful to know that the accessors `$vm` and `$item` are not refereces to the actual objects but rather JSON copies of the object created when the view is updated. They will contain all the fields of the objects but the prototypes and any non primitive data types are not available.
