@@ -34,7 +34,7 @@ export abstract class ViewModel {
         this.updateViews();
     }
 
-    protected onEvent(event: Event, eventName: string): void {
+    protected onEvent(event: Event, eventName: string, arg: any): void {
         throw new Error("Method not implemented.");
     }
 
@@ -152,14 +152,23 @@ export abstract class ViewModel {
         });
     }
     
-    private bindEvents(element: Element): void {
+    private bindEvents(element: Element, item?: string, i?:number): void {
         let eventBindStr: string = element.getAttribute(this.eventBindAttr);
         let bindings: string[] = eventBindStr.split(",");
         bindings.forEach(binding => {
             let event: string = binding.split(":")[0].trim();
-            let fnName: string = binding.split(":")[1].trim();
+            let fnStr: string = binding.split(":")[1].trim();
+            let fnName: string;
+            let arg: any;
+            let cap = fnStr.match(/(.*)\((.*)\)/);
+            if(cap) {
+                fnName = cap[1];
+                arg = this.getValueBindingFunction(cap[2], item, i);
+            } else {
+                fnName = fnStr;
+            }
             element.addEventListener(event, (e) => {
-                this.onEvent(e, fnName);
+                this.onEvent(e, fnName, Function(arg).call(this));
             });
         });
     }
@@ -227,6 +236,10 @@ export abstract class ViewModel {
             valueBoundElements.forEach(bound => {
                 this.bindValue(bound, iterableStr, i);
                 this.bindChangeEvent(bound, item)
+            });
+            let eventBoundElements: NodeListOf<Element> = newElem.querySelectorAll(`[${this.eventBindAttr}]`);
+            eventBoundElements.forEach(element => {
+                this.bindEvents(element, iterableStr, i);
             });
             newElem.classList.add(className);
             newElem.removeAttribute("hidden");
