@@ -212,7 +212,6 @@ export abstract class ViewModel {
         if(element.parentNode == null)
             return;
         let iterableStr: string = element.getAttribute(this.foreachBindAttr);
-        console.log(iterableStr);
         let iterable = Function(this.getValueBindingFunction(iterableStr)).call(this);
         if(!iterable)
             return;
