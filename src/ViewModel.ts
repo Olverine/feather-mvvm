@@ -167,9 +167,13 @@ export abstract class ViewModel {
             } else {
                 fnName = fnStr;
             }
-            element.addEventListener(event, (e) => {
+            if((element as any)[this.name + event] != undefined) {
+                element.removeEventListener(event, (element as any)[this.name + event]);
+            }
+            (element as any)[this.name + event] = (e) => {
                 this.onEvent(e, fnName, Function(arg).call(this));
-            });
+            };
+            element.addEventListener(event, (element as any)[this.name + event]);
         });
     }
 
