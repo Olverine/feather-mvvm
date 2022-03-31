@@ -34,6 +34,10 @@ export abstract class ViewModel {
         this.updateViews();
     }
 
+    public setModel(model: any): void {
+        this.model = model;
+    }
+
     protected onEvent(event: Event, eventName: string, arg: any): void {
         throw new Error("Method not implemented.");
     }
