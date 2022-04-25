@@ -80,7 +80,7 @@ Whenever the state of a viewmodel changes, it has to update it's views in order 
 Attribute binding binds data to an html attribute. The value of the binding attribute is a comma separated list of attribute name and value pairs so multiple attributes can be bound at once. The value part will be evaluated as javascript and a reference to the viewmodel instance can be accessed through the variable `$vm`. For example:
 
 ```html
-<progress vm-name-attr-bind="value: $vm.progress, max: $vm.maximum" />
+<progress vm-name-attr-bind="value::$vm.progress, max::$vm.maximum" />
 ```
 
 ### Content binding
@@ -98,10 +98,10 @@ Only one argument is allowed and it will be evaluated as javascript.
 
 ```html
 <!-- Event without argument -->
-<button vm-name-event-bind="click: hello">Click Me</button>
+<button vm-name-event-bind="click::hello">Click Me</button>
 
 <!-- Event with argument -->
-<button vm-name-event-bind="click: say('hello')">Click Me</button>
+<button vm-name-event-bind="click::say('hello')">Click Me</button>
 ```
 
 In order to catch this event in the viewmodel, you need to override the `onEvent` function:
@@ -126,7 +126,7 @@ JavaScript value binding is a two way binding between a field in the viewmodel a
 ```html
 <div id="view" ft-view-model="hello-vm">
     <h1 hello-vm-content-bind="$vm.model"></h1>
-    <input hello-vm-js-bind="value: $vm.model">
+    <input hello-vm-js-bind="value::$vm.model">
 </div>
 ```
 

@@ -95,7 +95,7 @@ export abstract class ViewModel {
             return;
         let bindings: string[] = attributeBindingStr.split(",");
         bindings.forEach(binding => {
-            let split: string[] = binding.split(/(?<!\\):/);
+            let split: string[] = binding.split("::");
             let attr: string = split[0].trim();
             let valueField: string = split[1].trim();
             let value: any = "";
@@ -121,7 +121,7 @@ export abstract class ViewModel {
         let binding = element.getAttribute(this.contentBindAttr);
         if (binding == null)
             return;
-        let split = binding.split(/(?<!\\):/);
+        let split = binding.split("::");
         binding = split[0];
         let value = "";
         try{
@@ -143,8 +143,8 @@ export abstract class ViewModel {
             return;
         let bindings: string[] = jsBindingStr.split(",");
         bindings.forEach(binding => {
-            let val: string = binding.split(":")[0].trim();
-            let valueField: string = binding.split(":")[1].trim();
+            let val: string = binding.split("::")[0].trim();
+            let valueField: string = binding.split("::")[1].trim();
             let value: any = "";
             try{
                 value = Function(this.getValueBindingFunction(valueField, item, i)).call(this);
@@ -160,8 +160,8 @@ export abstract class ViewModel {
         let eventBindStr: string = element.getAttribute(this.eventBindAttr);
         let bindings: string[] = eventBindStr.split(",");
         bindings.forEach(binding => {
-            let event: string = binding.split(":")[0].trim();
-            let fnStr: string = binding.split(":")[1].trim();
+            let event: string = binding.split("::")[0].trim();
+            let fnStr: string = binding.split("::")[1].trim();
             let fnName: string;
             let arg: any;
             let cap = fnStr.match(/(.*)\((.*)\)/);
@@ -186,8 +186,8 @@ export abstract class ViewModel {
         let bindings: string[] = jsBindingStr.split(",");
         bindings.forEach(binding => {
             element.addEventListener("change", (e) => {
-                let val: string = binding.split(":")[0].trim();
-                let valueField: string = binding.split(":")[1].trim();
+                let val: string = binding.split("::")[0].trim();
+                let valueField: string = binding.split("::")[1].trim();
 
                 let obj: any;
                 let fields = valueField.split(".");
