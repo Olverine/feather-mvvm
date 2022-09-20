@@ -185,7 +185,7 @@ export abstract class ViewModel {
         let jsBindingStr: string = element.getAttribute(this.jsBindAttr);
         let bindings: string[] = jsBindingStr.split(",");
         bindings.forEach(binding => {
-            element.addEventListener("change", (e) => {
+            let bindingFunction = (e) => {
                 let val: string = binding.split("::")[0].trim();
                 let valueField: string = binding.split("::")[1].trim();
 
@@ -201,7 +201,9 @@ export abstract class ViewModel {
                 }
                 obj[fields[fields.length - 1]] = (e.target as unknown as any)[val];
                 this.updateViews();
-            });
+            };
+            element.addEventListener("change", bindingFunction);
+            element.addEventListener("input", bindingFunction);
         });
     }
 
