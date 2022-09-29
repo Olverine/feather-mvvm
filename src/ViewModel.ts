@@ -203,7 +203,9 @@ export abstract class ViewModel {
                 this.updateViews();
             };
             element.addEventListener("change", bindingFunction);
-            element.addEventListener("input", bindingFunction);
+            if(element.tagName.toLowerCase() !== 'select') {
+                element.addEventListener("input", bindingFunction);
+            }
         });
     }
 
