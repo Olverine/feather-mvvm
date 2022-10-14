@@ -132,6 +132,8 @@ JavaScript value binding is a two way binding between a field in the viewmodel a
 
 In the above example, the inner text of the `<h1>` element will be updated whenever the user changes the value of the `<input>` element
 
+The value will be changed when the text field has been updated and loses focus (on the `change` event). If you want the value to be updated in real time as the user is typing (on the `input` event), you can add the `<viewmodel>-real-time-bind` attribute.
+
 ### Foreach binding
 
 Foreach binding is used to create lists that represents the elements in an array. A foreach bound element will be multiplied inside it's parent once for each element in the provided array. Attributes, Content, Javascript values and events can then be bound as usual except the element array item can be accessed through the variable `$item` and it's indexed location in the array can be accessed with `$i`.

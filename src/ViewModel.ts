@@ -11,6 +11,7 @@ export abstract class ViewModel {
     private contentBindAttr: string;
     private eventBindAttr: string;
     private jsBindAttr: string;
+    private realTimeBindAttr: string;
     private foreachBindAttr: string;
 
     private foreachClassName = "ft-foreach";
@@ -23,6 +24,7 @@ export abstract class ViewModel {
         this.contentBindAttr = `${this.name}-content-bind`;
         this.eventBindAttr = `${this.name}-event-bind`;
         this.jsBindAttr = `${this.name}-js-bind`;
+        this.realTimeBindAttr = `${this.name}-real-time-bind`;
         this.foreachBindAttr = `${this.name}-foreach`;
 
         this.views = document.querySelectorAll(`[ft-view-model=${name}]`);
@@ -202,10 +204,8 @@ export abstract class ViewModel {
                 obj[fields[fields.length - 1]] = (e.target as unknown as any)[val];
                 this.updateViews();
             };
-            element.addEventListener("change", bindingFunction);
-            if(element.tagName.toLowerCase() !== 'select') {
-                element.addEventListener("input", bindingFunction);
-            }
+            let realTime = element.hasAttribute(this.realTimeBindAttr);
+            element.addEventListener(realTime ? "input" : "change", bindingFunction);
         });
     }
 
