@@ -136,7 +136,9 @@ export abstract class ViewModel {
             }
         } catch(e){
         }
-        element.innerHTML = value;
+        if(element.innerHTML != value) {
+            element.innerHTML = value;
+        }
     }
 
     private bindValue(element: Element, item?: string, i?: number): void {
